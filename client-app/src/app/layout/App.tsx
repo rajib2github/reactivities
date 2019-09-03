@@ -1,47 +1,31 @@
-import React, {Component} from 'react';
-import { Header, List, Button} from 'semantic-ui-react'
-import axios from 'axios';
-import { IActivity } from '../models/activity';
+import React, { useState, useEffect, Fragment } from "react";
+import { List, Container } from "semantic-ui-react";
+import axios from "axios";
+import { IActivity } from "../models/activity";
+import NavBar from "../../features/nav/navbar";
 
-interface IState {
-  activities: IActivity[]
-}
+const App = () => {
+  const [activities, setActivities] = useState<IActivity[]>([]);
 
-class App extends Component<{},IState> {
+  useEffect(() => {
+    axios.get<IActivity[]>("http://localhost:5000/api/activities").then(res => {
+      console.log(res);
+      setActivities(res.data);
+    });
+  }, []);
 
-  readonly state: IState = {
-    activities: []
-  }
-
-  componentDidMount()
-  {
-    axios.get<IActivity[]>("http://localhost:5000/api/activities")
-          .then((res)=>{
-            console.log(res);
-            this.setState({
-              activities: res.data
-            });
-
-          });
-    
-  }
-
-  render() {
-    return(
-    <div>
-      <Header as='h2' icon='plug' content='Uptime Guarantee' />
-        
+  return (
+    <Fragment>
+      <NavBar />
+      <Container style={{marginTop: '7em'}}>
         <List>
-          {this.state.activities.map((activity)=>(
+          {activities.map(activity => (
             <List.Item key={activity.id}>{activity.title}</List.Item>
           ))}
         </List>
-        <Button primary>Primary</Button>
-        <Button secondary>Secondary</Button>
-      
-    </div>    
-    );
-  }
-}
+      </Container>      
+    </Fragment>
+  );
+};
 
 export default App;
