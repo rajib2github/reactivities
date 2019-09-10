@@ -1,20 +1,22 @@
 import React, { useState, FormEvent } from "react";
 import { Segment, Form, Button } from "semantic-ui-react";
 import { IActivity } from "../../app/models/activity";
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from "uuid";
 
 interface IProps {
   setEditMode: (editMode: boolean) => void;
   activity: IActivity | null;
   createActivity: (activity: IActivity) => void;
   editActivity: (activity: IActivity) => void;
+  submitting: boolean;
 }
 
 const Activityform: React.FC<IProps> = ({
   setEditMode,
   activity: initialActivity,
   createActivity,
-  editActivity
+  editActivity,
+  submitting
 }) => {
   const initializeForm = () => {
     if (initialActivity) return initialActivity;
@@ -22,7 +24,7 @@ const Activityform: React.FC<IProps> = ({
       id: "",
       title: "",
       category: "",
-      description: "",
+      descrition: "",
       date: "",
       city: "",
       venue: ""
@@ -37,15 +39,14 @@ const Activityform: React.FC<IProps> = ({
     setActivity({ ...activity, [name]: value });
   };
 
-  const handleSubmit = () =>{
-    if(activity.id.length === 0){
+  const handleSubmit = () => {
+    if (activity.id.length === 0) {
       let newActivity = {
-          ...activity,
-          id: uuid()
-      }
+        ...activity,
+        id: uuid()
+      };
       createActivity(newActivity);
-    }
-    else{
+    } else {
       editActivity(activity);
     }
   };
@@ -60,11 +61,11 @@ const Activityform: React.FC<IProps> = ({
           value={activity.title}
         />
         <Form.TextArea
-          name="description"
           onChange={handleInputChange}
+          name='descrition'
           rows={2}
-          placeholder="Description"
-          value={activity.description}
+          placeholder='Descrition'
+          value={activity.descrition}
         />
         <Form.Input
           name="category"
@@ -76,7 +77,7 @@ const Activityform: React.FC<IProps> = ({
           name="date"
           format=""
           onChange={handleInputChange}
-          type='datetime-local'
+          type="datetime-local"
           placeholder="Date"
         />
         <Form.Input
@@ -91,7 +92,13 @@ const Activityform: React.FC<IProps> = ({
           placeholder="Venue"
           value={activity.venue}
         />
-        <Button floated="right" type="submit" positive content="Submit" />
+        <Button
+          loading={submitting}
+          floated="right"
+          type="submit"
+          positive
+          content="Submit"
+        />
         <Button
           onClick={() => setEditMode(false)}
           floated="right"

@@ -25,7 +25,7 @@ const Activitydetails: React.FC<IProps> = ({
         <Card.Meta>
           <span>{activity.date}</span>
         </Card.Meta>
-        <Card.Description>{activity.description}</Card.Description>
+        <Card.Description>{activity.descrition}</Card.Description>
       </Card.Content>
       <Card.Content extra>
         <Button.Group widths={2}>
