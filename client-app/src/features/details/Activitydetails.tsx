@@ -1,31 +1,35 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Card, Image, Button } from "semantic-ui-react";
 import { IActivity } from "../../app/models/activity";
+import ActivityStore from "../../app/stores/activitystore";
 
 interface IProps {
-  activity: IActivity;
+  
   setEditMode: (editMode: boolean) => void;
   setSelectedActivity: (activity: IActivity | null) => void;
 }
 
 const Activitydetails: React.FC<IProps> = ({
-  activity,
+  
   setEditMode,
   setSelectedActivity
 }) => {
+  const activityStore = useContext(ActivityStore);
+  const {selectedActivity: activity} = activityStore;
+
   return (
     <Card fluid>
       <Image
-        src={`/assets/categoryImages/${activity.category}.jpg`}
+        src={`/assets/categoryImages/${activity!.category}.jpg`}
         wrapped
         ui={false}
       />
       <Card.Content>
-        <Card.Header>{activity.title}</Card.Header>
+        <Card.Header>{activity!.title}</Card.Header>
         <Card.Meta>
-          <span>{activity.date}</span>
+          <span>{activity!.date}</span>
         </Card.Meta>
-        <Card.Description>{activity.descrition}</Card.Description>
+        <Card.Description>{activity!.descrition}</Card.Description>
       </Card.Content>
       <Card.Content extra>
         <Button.Group widths={2}>
