@@ -3,6 +3,7 @@ import { Item, Button, Label, Segment } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
 import ActivityStore from "../../app/stores/activitystore";
 
+
 const ActivityList: React.FC = () => {
   const activityStore = useContext(ActivityStore);
   const {
