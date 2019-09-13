@@ -30,36 +30,6 @@ const App = () => {
     setEditMode(false);
   };
 
-  const handleOpenCreateForm = () => {
-    setSelectedActivity(null);
-    setEditMode(true);
-  };
-
-  const handleCreateActivity = (activity: IActivity) => {
-    setSubmitting(true);
-    agent.Activities.create(activity)
-      .then(() => {
-        setActivities([...activities, activity]);
-        setSelectedActivity(activity);
-        setEditMode(false);
-      })
-      .then(() => setSubmitting(false));
-  };
-
-  const handleEditActivity = (activity: IActivity) => {
-    setSubmitting(true);
-    agent.Activities.update(activity)
-      .then(() => {
-        setActivities([
-          ...activities.filter(a => a.id !== activity.id),
-          activity
-        ]);
-        setSelectedActivity(activity);
-        setEditMode(false);
-      })
-      .then(() => setSubmitting(false));
-  };
-
   const handleDeleteActivity = (
     e: SyntheticEvent<HTMLButtonElement>,
     id: string
@@ -82,15 +52,10 @@ const App = () => {
 
   return (
     <Fragment>
-      <NavBar openCreateForm={handleOpenCreateForm} />
+      <NavBar />
       <Container style={{ marginTop: "7em" }}>
         <ActivityDashboard
-          activities={activityStore.activities}
-          selectActivity={handleSelectedActivity}
           setEditMode={setEditMode}
-          setSelectedActivity={setSelectedActivity}
-          createActivity={handleCreateActivity}
-          editActivity={handleEditActivity}
           deleteActivity={handleDeleteActivity}
           submitting={submitting}
           target={target}

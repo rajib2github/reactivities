@@ -1,23 +1,23 @@
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useContext } from "react";
 import { Segment, Form, Button } from "semantic-ui-react";
 import { IActivity } from "../../app/models/activity";
 import { v4 as uuid } from "uuid";
+import ActivityStore from "../../app/stores/activitystore";
 
 interface IProps {
   setEditMode: (editMode: boolean) => void;
-  activity: IActivity | null;
-  createActivity: (activity: IActivity) => void;
-  editActivity: (activity: IActivity) => void;
-  submitting: boolean;
+  activity: IActivity | null;  
+  
 }
 
 const Activityform: React.FC<IProps> = ({
   setEditMode,
-  activity: initialActivity,
-  createActivity,
-  editActivity,
-  submitting
+  activity: initialActivity,  
+  
 }) => {
+  const activityStore = useContext(ActivityStore);
+  const { createActivity,editActivity,submitting } = activityStore;
+  
   const initializeForm = () => {
     if (initialActivity) return initialActivity;
     return {
@@ -62,9 +62,9 @@ const Activityform: React.FC<IProps> = ({
         />
         <Form.TextArea
           onChange={handleInputChange}
-          name='descrition'
+          name="descrition"
           rows={2}
-          placeholder='Descrition'
+          placeholder="Description"
           value={activity.descrition}
         />
         <Form.Input
