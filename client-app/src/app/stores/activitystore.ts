@@ -1,7 +1,9 @@
 import { IActivity } from "./../models/activity";
-import { observable, action, computed } from "mobx";
+import { observable, action, computed, configure, runInAction } from "mobx";
 import { createContext, SyntheticEvent } from "react";
 import agent from "../api/agent";
+
+configure({ enforceActions: "always" });
 
 class ActivityStore {
   @observable activityRegistry = new Map();
@@ -10,7 +12,7 @@ class ActivityStore {
   @observable loadingInitial = false;
   @observable editMode = false;
   @observable submitting = false;
-  @observable target ="";
+  @observable target = "";
 
   @computed get activityByDate() {
     return Array.from(this.activityRegistry.values()).sort(
@@ -18,26 +20,39 @@ class ActivityStore {
     );
   }
 
-  @action loadActivities = () => {
+  @action loadActivities = async () => {
     this.loadingInitial = true;
-    agent.Activities.list()
-      .then(activities => {
+    try {
+      const activities = await agent.Activities.list();
+      runInAction('load activities',() => {
         activities.forEach(activity => {
           activity.date = activity.date.split(".")[0];
           this.activityRegistry.set(activity.id, activity);
         });
-      })
-      .finally(() => (this.loadingInitial = false));
+        this.loadingInitial = false;
+      });
+    } catch (error) {
+      runInAction('load activity error',() => {
+        this.loadingInitial = false;
+      });
+      console.log(error);
+    }
   };
 
   @action createActivity = async (activity: IActivity) => {
     this.submitting = true;
     try {
       await agent.Activities.create(activity);
-      this.editMode = false;
-      this.activityRegistry.set(activity.id, activity);
+      runInAction("Creating actvity", () => {
+        this.editMode = false;
+        this.activityRegistry.set(activity.id, activity);
+        this.submitting = false;
+      });
     } catch (error) {
-      this.submitting = false;
+      runInAction("Create Activity Error", () => {
+        this.submitting = false;
+      });
+
       console.log(error);
     }
   };
@@ -46,49 +61,60 @@ class ActivityStore {
     this.submitting = true;
     try {
       await agent.Activities.update(activity);
-      this.activityRegistry.set(activity.id,activity);
-      this.selectedActivity = activity;
-      this.editMode = false;
-      this.submitting = false;
+      runInAction("editing activity", () => {
+        this.activityRegistry.set(activity.id, activity);
+        this.selectedActivity = activity;
+        this.editMode = false;
+        this.submitting = false;
+      });
     } catch (error) {
+      runInAction("edit activity error", () => {
+        this.submitting = false;
+      });
       console.log(error);
-      this.submitting = false;
     }
   };
 
   @action openEditForm = (id: string) => {
     this.selectedActivity = this.activityRegistry.get(id);
     this.editMode = true;
-  }
+  };
 
   @action cancelFormOpen = () => {
     this.editMode = false;
-  } 
+  };
 
-  @action cancelEdit =()=>{
+  @action cancelEdit = () => {
     this.selectedActivity = undefined;
     this.editMode = false;
-  }
+  };
 
-  
   @action openCreateForm = () => {
     this.editMode = true;
     this.selectedActivity = undefined;
   };
 
-  @action deleteActivity = async (e: SyntheticEvent<HTMLButtonElement>,id:string) =>{
+  @action deleteActivity = async (
+    e: SyntheticEvent<HTMLButtonElement>,
+    id: string
+  ) => {
     this.submitting = true;
     this.target = e.currentTarget.name;
-    try{
+    try {
       await agent.Activities.delete(id);
-      this.activityRegistry.delete(id);      
-      this.submitting = false;
-      this.target = "";
-    }catch(error){
-      this.submitting = false; 
+
+      runInAction("deleting activity", () => {
+        this.activityRegistry.delete(id);
+        this.submitting = false;
+        this.target = "";
+      });
+    } catch (error) {
+      runInAction("delete activity error", () => {
+        this.submitting = false;
+      });
       console.log(error);
     }
-  }
+  };
 
   @action setSelectedActivity = (id: string) => {
     this.selectedActivity = this.activityRegistry.get(id);
