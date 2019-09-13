@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { Card, Image, Button } from "semantic-ui-react";
 import { IActivity } from "../../app/models/activity";
 import ActivityStore from "../../app/stores/activitystore";
+import { observer } from "mobx-react-lite";
 
 
 const Activitydetails: React.FC = () => {
@@ -42,4 +43,4 @@ const Activitydetails: React.FC = () => {
   );
 };
 
-export default Activitydetails;
+export default observer(Activitydetails);
