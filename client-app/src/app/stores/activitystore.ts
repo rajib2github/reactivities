@@ -8,7 +8,7 @@ configure({ enforceActions: "always" });
 class ActivityStore {
   @observable activityRegistry = new Map();
   @observable activities: IActivity[] = [];
-  @observable activity: IActivity | undefined;  
+  @observable activity: IActivity | null = null;
   @observable loadingInitial = false;
   @observable editMode = false;
   @observable submitting = false;
@@ -24,7 +24,7 @@ class ActivityStore {
     this.loadingInitial = true;
     try {
       const activities = await agent.Activities.list();
-      runInAction('load activities',() => {
+      runInAction("load activities", () => {
         activities.forEach(activity => {
           activity.date = activity.date.split(".")[0];
           this.activityRegistry.set(activity.id, activity);
@@ -32,7 +32,7 @@ class ActivityStore {
         this.loadingInitial = false;
       });
     } catch (error) {
-      runInAction('load activity error',() => {
+      runInAction("load activity error", () => {
         this.loadingInitial = false;
       });
       console.log(error);
@@ -47,22 +47,26 @@ class ActivityStore {
       this.loadingInitial = true;
       try {
         activity = await agent.Activities.details(id);
-        runInAction('getting activity',() => {
+        runInAction("getting activity", () => {
           this.activity = activity;
           this.loadingInitial = false;
-        })
+        });
       } catch (error) {
-        runInAction('get activity error', () => {
+        runInAction("get activity error", () => {
           this.loadingInitial = false;
-        })
+        });
         console.log(error);
       }
     }
-  }
+  };
+
+  @action clearActivity = () => {
+    this.activity = null;
+  };
 
   getActivity = (id: string) => {
     return this.activityRegistry.get(id);
-  }
+  };
 
   @action createActivity = async (activity: IActivity) => {
     this.submitting = true;
@@ -100,25 +104,6 @@ class ActivityStore {
     }
   };
 
-  @action openEditForm = (id: string) => {
-    this.activity = this.activityRegistry.get(id);
-    this.editMode = true;
-  };
-
-  @action cancelFormOpen = () => {
-    this.editMode = false;
-  };
-
-  @action cancelEdit = () => {
-    this.activity = undefined;
-    this.editMode = false;
-  };
-
-  @action openCreateForm = () => {
-    this.editMode = true;
-    this.activity = undefined;
-  };
-
   @action deleteActivity = async (
     e: SyntheticEvent<HTMLButtonElement>,
     id: string
@@ -139,11 +124,6 @@ class ActivityStore {
       });
       console.log(error);
     }
-  };
-
-  @action setSelectedActivity = (id: string) => {
-    this.activity = this.activityRegistry.get(id);
-    this.editMode = false;
   };
 }
 

@@ -8,8 +8,7 @@ import { Link } from "react-router-dom";
 const ActivityList: React.FC = () => {
   const activityStore = useContext(ActivityStore);
   const {
-    activityByDate,
-    setSelectedActivity,
+    activityByDate,    
     deleteActivity,
     submitting,
     target
