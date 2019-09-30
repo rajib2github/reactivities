@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Data;
 using Domain;
 using MediatR;
+using FluentValidation;
+
 
 namespace Application.Activities
 {
@@ -20,7 +22,20 @@ namespace Application.Activities
             public string Venue { get; set; }
         }
 
-         public class Handler : IRequestHandler<Command>
+        public class CommandValidator : AbstractValidator<Command>
+        {
+            public CommandValidator()
+            {
+                RuleFor(x=>x.Title).NotEmpty();
+                RuleFor(x=>x.Descrition).NotEmpty();
+                RuleFor(x=>x.Category).NotEmpty();
+                RuleFor(x=>x.Date).NotEmpty();
+                RuleFor(x=>x.City).NotEmpty();
+                RuleFor(x=>x.Venue).NotEmpty();
+            }
+        }
+
+        public class Handler : IRequestHandler<Command>
          {
             private readonly DataContext _context;
 
