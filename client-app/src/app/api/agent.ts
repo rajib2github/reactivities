@@ -23,6 +23,7 @@ axios.interceptors.response.use(undefined,error=>{
   if(status === 500){
     toast.error("Internal server error!");
   }
+  throw error;
   
 });
 
