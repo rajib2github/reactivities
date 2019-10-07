@@ -1,6 +1,6 @@
 import React, { useState, FormEvent, useContext, useEffect } from "react";
 import { Segment, Form, Button, Grid } from "semantic-ui-react";
-import { IActivity } from "../../app/models/activity";
+import {  IActivityFormValues } from "../../app/models/activity";
 import { v4 as uuid } from "uuid";
 import ActivityStore from "../../app/stores/activitystore";
 import { observer } from "mobx-react-lite";
@@ -30,18 +30,18 @@ const Activityform: React.FC<RouteComponentProps<DetailParams>> = ({
     clearActivity
   } = activityStore;
 
-  const [activity, setActivity] = useState<IActivity>({
+  const [activity, setActivity] = useState<IActivityFormValues>({
     id: "",
     title: "",
     category: "",
     descrition: "",
-    date: null,
+    date: undefined,
     city: "",
     venue: ""
   });
 
   useEffect(() => {
-    if (match.params.id && activity.id.length === 0) {
+    if (match.params.id && activity.id) {
       loadActivity(match.params.id).then(
         () => initialActivity && setActivity(initialActivity)
       );
@@ -54,7 +54,7 @@ const Activityform: React.FC<RouteComponentProps<DetailParams>> = ({
     match.params.id,
     clearActivity,
     initialActivity,
-    activity.id.length
+    activity.id
   ]);
 
   const handleInputChange = (
@@ -64,21 +64,21 @@ const Activityform: React.FC<RouteComponentProps<DetailParams>> = ({
     setActivity({ ...activity, [name]: value });
   };
 
-  const handleSubmit = () => {
-    if (activity.id.length === 0) {
-      let newActivity = {
-        ...activity,
-        id: uuid()
-      };
-      createActivity(newActivity).then(() =>
-        history.push(`/activities/${newActivity.id}`)
-      );
-    } else {
-      editActivity(activity).then(() =>
-        history.push(`/activities/${activity.id}`)
-      );
-    }
-  };
+  // const handleSubmit = () => {
+  //   if (activity.id) {
+  //     let newActivity = {
+  //       ...activity,
+  //       id: uuid()
+  //     };
+  //     createActivity(newActivity).then(() =>
+  //       history.push(`/activities/${newActivity.id}`)
+  //     );
+  //   } else {
+  //     editActivity(activity).then(() =>
+  //       history.push(`/activities/${activity.id}`)
+  //     );
+  //   }
+  // };
 
   const handleFinalFormSubmit = (values: any) => {
     console.log(values);
@@ -118,8 +118,15 @@ const Activityform: React.FC<RouteComponentProps<DetailParams>> = ({
                     name='date'
                     date={true}
                     placeholder='Date'
-                    value={activity.date!}
-                  />                 
+                    value={activity.date}
+                  />     
+                  <Field
+                    component={DateInput}
+                    name='time'
+                    time={true}
+                    placeholder='Time'
+                    value={activity.time}
+                  />                  
                 </Form.Group>
                 <Field
                   name="city"
