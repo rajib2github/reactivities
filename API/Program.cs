@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Data;
+using Domain;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,17 +20,21 @@ namespace API
         public static void Main(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
-            using(var scope = host.Services.CreateScope()){
+            using (var scope = host.Services.CreateScope())
+            {
                 var Services = scope.ServiceProvider;
-                try{
+                try
+                {
                     var context = Services.GetRequiredService<DataContext>();
+                    var userManager = Services.GetRequiredService<UserManager<AppUser>>();
                     context.Database.Migrate();
-                    Seed.SeedData(context);
+                    Seed.SeedData(context, userManager).Wait();
 
                 }
-                catch(Exception ex){
+                catch (Exception ex)
+                {
                     var logger = Services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex,"An error occured during migration");
+                    logger.LogError(ex, "An error occured during migration");
                 }
             }
 
