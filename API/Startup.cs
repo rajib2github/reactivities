@@ -20,6 +20,11 @@ using Domain;
 using Microsoft.AspNetCore.Identity;
 using Application.Interfaces;
 using Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace API
 {
@@ -50,7 +55,10 @@ namespace API
             });
 
             services.AddMediatR(typeof(List.Handler).Assembly);
-            services.AddMvc()
+            services.AddMvc(opt=>{
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                opt.Filters.Add(new AuthorizeFilter(policy));
+            })
             .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<Create>())
             .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -58,6 +66,19 @@ namespace API
             var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
             identityBuilder.AddEntityFrameworkStores<DataContext>();
             identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"]));
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+              .AddJwtBearer(opt =>{
+                  opt.TokenValidationParameters = new TokenValidationParameters {
+
+                      ValidateIssuerSigningKey =true,
+                      IssuerSigningKey = key,
+                      ValidateAudience = false,
+                      ValidateIssuer =false
+                  };
+              });
 
             services.AddScoped<IJWTGenerator, JWTGenerator>();
         }
@@ -76,6 +97,7 @@ namespace API
                 //app.UseHsts();
             }
 
+            app.UseAuthentication();
             app.UseCors("CorsPolicy");
             //app.UseHttpsRedirection();
             app.UseMvc();
